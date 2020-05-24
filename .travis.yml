@@ -1,0 +1,17 @@
+language: scala
+
+sudo: required
+
+scala:
+  - 2.13.2
+
+jdk:
+  - openjdk8
+
+script: sbt ++$TRAVIS_SCALA_VERSION validate
+
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
