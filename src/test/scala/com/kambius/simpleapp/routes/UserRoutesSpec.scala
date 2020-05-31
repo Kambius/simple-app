@@ -75,7 +75,12 @@ class UserRoutesSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers {
           uri = uri"/users"
         ).withEntity(json"""{ "user_id": 2, "email": "some@email.com" }"""))(
         Status.Created,
-        json"""{ "email": "some@email.com" }""".some
+        json"""{
+          "email": "some@email.com",
+          "id": 2,
+          "first_name": "Bob",
+          "last_name": "Bobson"
+        }""".some
       )
     }
 

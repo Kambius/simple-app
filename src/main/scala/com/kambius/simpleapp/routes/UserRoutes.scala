@@ -9,7 +9,7 @@ import com.kambius.simpleapp.common.validation._
 import com.kambius.simpleapp.services.Users
 import com.kambius.simpleapp.services.Users.{AlreadyExists, NotFount, User}
 import io.circe.derivation.{deriveDecoder, deriveEncoder, renaming}
-import io.circe.{Decoder, Encoder, Json}
+import io.circe.{Decoder, Encoder}
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.dsl.Http4sDsl
@@ -39,7 +39,7 @@ object UserRoutes {
               case None =>
                 users.add(d.userId, d.email).flatMap {
                   case Right(user) =>
-                    Created(Json.obj("email" -> Json.fromString(user.email)))
+                    Created(UserDto.fromUser(user))
 
                   case Left(e: NotFount) =>
                     NotFound(ErrorDto(e.message))
@@ -82,7 +82,7 @@ object UserRoutes {
               BadRequest(ErrorDto(e.getMessage))
 
             case e =>
-              F.delay(logger.error(e)("Error during handling request")) *>
+              F.delay(logger.error(e)("Error during request handling")) *>
                 InternalServerError(ErrorDto(e.getMessage))
           }
       }
