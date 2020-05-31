@@ -14,7 +14,7 @@ import org.http4s.circe.CirceEntityCodec._
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
-import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes, MessageFailure}
 import org.log4s._
 
 object UserRoutes {
@@ -77,9 +77,13 @@ object UserRoutes {
             case None       => NotFound(ErrorDto("Not found"))
             case Some(resp) => F.pure(resp)
           }
-          .handleErrorWith { t =>
-            F.delay(logger.error(t)("Error during handling request")) *>
-              InternalServerError(ErrorDto(t.getMessage))
+          .handleErrorWith {
+            case e: MessageFailure =>
+              BadRequest(ErrorDto(e.getMessage))
+
+            case e =>
+              F.delay(logger.error(e)("Error during handling request")) *>
+                InternalServerError(ErrorDto(e.getMessage))
           }
       }
     }
