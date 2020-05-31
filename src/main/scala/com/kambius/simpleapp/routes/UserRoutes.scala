@@ -15,8 +15,11 @@ import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes}
+import org.log4s._
 
 object UserRoutes {
+  private[this] val logger = getLogger
+
   def routes[F[_]](users: Users[F])(implicit F: Sync[F]): HttpRoutes[F] = {
     val dsl = Http4sDsl[F]
     import dsl._
@@ -75,7 +78,8 @@ object UserRoutes {
             case Some(resp) => F.pure(resp)
           }
           .handleErrorWith { t =>
-            InternalServerError(ErrorDto(t.getMessage))
+            F.delay(logger.error(t)("Error during handling request")) *>
+              InternalServerError(ErrorDto(t.getMessage))
           }
       }
     }
